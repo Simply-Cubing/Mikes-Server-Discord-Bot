@@ -4,6 +4,7 @@ from discord.ext import commands
 import os
 
 intents = discord.Intents().all()
+#yes i use all() don't ask
 client = commands.Bot(command_prefix='!', intents=intents)
 
 @client.event
@@ -23,12 +24,13 @@ async def on_ready():
     print(f'Error syncing commands: {e}')
 
 
-
+#submit appeal command
 
 @client.tree.command(name="submit_appeal")
 @app_commands.describe(ban_reason="cause of your ban, if you choose 'other' please fill out the 'additional_info' parameter ")
 @app_commands.describe(unban_reason="why should you be unbanned")
 @app_commands.describe(ban_reason='unban reasons')
+#choices for reasons of ban
 @app_commands.choices(ban_reason=[
   discord.app_commands.Choice(name='NSFW', value = 1),
   discord.app_commands.Choice(name='Discrimination', value = 2),
@@ -53,16 +55,18 @@ async def add(interaction: discord.Interaction, ban_reason: discord.app_commands
   user2 = client.get_user(id2)
   await user1.send(request)
   await user2.send(request)
-
+#bans user
 @client.tree.command(name="ban")
 @app_commands.describe(reason = "reason for ban")
 @app_commands.describe(user="the user you want to ban")
 @commands.has_permissions(ban_members=True)
 async def ban(interaction:discord.Interaction, user:discord.Member, reason:str):
+  #bans user and dms the user that they were banned
   try:
     await user.send(f"You have been banned from 'Mike's Server' for {reason} if you would like to submit an appeal to be unbanned please use '/submit_appeal'")
     await interaction.guild.ban(user,reason=reason)
     await interaction.response.send_message(f'User {user.mention} has been banned for "{reason}"')
+  #lets the user know that they're unable to ban a user instead of returning an error
   except:
     await interaction.response.send_message("You do not have the permissions to ban this member")
   
