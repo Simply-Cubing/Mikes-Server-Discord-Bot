@@ -1,12 +1,18 @@
+#libraries
 import discord
 from discord import app_commands
 from discord.ext import commands
 import os
+from keep_alive import keep_alive
+from discord.app_commands import CommandTree
 
-
+#sets up client
 intents = discord.Intents().all()
-client = commands.Bot(command_prefix='!', intents=intents)
+client = discord.Client(intents=intents)
+tree = CommandTree(client)
+client.tree = tree
 
+#messages when bot starts up
 @client.event
 async def on_ready():
   print('bot logged in!')
@@ -45,19 +51,22 @@ async def on_ready():
   discord.app_commands.Choice(name='Other', value = 12),
 ])
 @app_commands.describe(additional_info="add extra comments OR if you chose 'other' as your ban reason put it here")
-async def add(interaction: discord.Interaction, ban_reason: discord.app_commands.Choice[int], unban_reason: str, additional_info:str=None):
+async def add(interaction: discord.Interaction, ban_reason: discord.app_commands.Choice[int], unban_reason: str, additional_info:str=""):
+  try:
+    embed = discord.Embed(title="Appeal Sent", color = 0x992d22)
+    embed.add_field(name="Thank you for submitting", value="Your appeal is now pending, the admins will get back to you shortly")
+    await interaction.response.send_message(embed=embed)
+    request = f'{interaction.user.name} was banned for {ban_reason.name}. {interaction.user.name} wants to be unbanned because "{unban_reason}", {interaction.user.name} would also like to mention that "{additional_info}", '
 
-  embed = discord.Embed(title="Appeal Sent", color = 0x992d22)
-  embed.add_field(name="Thank you for submitting", value="Your appeal is now pending, the admins will get back to you shortly")
-  await interaction.response.send_message(embed=embed)
-  request = f'{interaction.user.name} was banned for {ban_reason.name}, {interaction.user.name} wants to be unbanned because "{unban_reason}", {interaction.user.name} would also like to mention that "{additional_info}", '
-
-  user1 = client.get_user(Id1)
-  user2 = client.get_user(Id2)
-  embed2 = discord.Embed(title="Ban appeal submitted", color = 0xffff00)
-  embed2.add_field(name=f"Appeal submitted by {interaction.user.name}", value=request)
-  await user1.send(embed=embed2)
-  await user2.send(embed=embed2)
+    user1 = client.get_user(Id1)
+    user2 = client.get_user(Id2)
+    embed2 = discord.Embed(title="Ban appeal submitted", color = 0xffff00)
+    embed2.add_field(name=f"Appeal submitted by {interaction.user.name}", value=request)
+    await user1.send(embed=embed2)
+    await user2.send(embed=embed2)
+  except Exception as e:
+    await interaction.response.send_message(e)
+    
 
 @client.tree.command(name="ban")
 @app_commands.describe(reason = "reason for ban")
@@ -66,8 +75,8 @@ async def add(interaction: discord.Interaction, ban_reason: discord.app_commands
 async def ban(interaction:discord.Interaction, user:discord.Member, reason:str):
   try:
     embed = discord.Embed(title="You have been banned", color=0)
-    embed.add_field(name = "Banned", value=f"You were banned for {reason}, if you would like to submit an appeal to be unbanned please join the server below and run '/submit_appeal'",)
-    embed2 = discord.Embed(title="HERE", color = 0x0000FF, url = "link")
+    embed.add_field(name = "Banned", value=f"You were banned for {reason}. If you would like to submit an appeal to be unbanned please join the server below and run '/submit_appeal'",)
+    embed2 = discord.Embed(title="HERE", color = 0x0000ff, url = "server link")
     embed2.add_field(name="Submit Appeal Server", value="please submit your ban appeal here, nowhere else.")
     await user.send(embed=embed)
     await user.send(embed=embed2)
@@ -78,9 +87,23 @@ async def ban(interaction:discord.Interaction, user:discord.Member, reason:str):
     await interaction.response.send_message(embed = embed3)
   except Exception as e:
     embed4= discord.Embed(title=f"Unable to ban {user}", color = 0x992d22)
-    embed4.add_field(name="Ban failure",value=f"""An error occured when you tried to ban this user, you likely do not have the permissions to ban this member. 
+    embed4.add_field(name="Ban failure",value=f"""An error occured when you tried to ban this user. You likely do not have the permissions to ban this member. 
     
     ERROR = {e}""")
     await interaction.response.send_message(embed=embed4)
-    
-client.run(token)
+
+@client.tree.command(name="warn")
+@app_commands.describe(user="User you want to warn")
+@app_commands.describe(reason="Reason for warning")
+@commands.has_permissions(ban_members=True)
+async def warn(interaction:discord.Interaction, user: discord.Member, reason:str):
+  embed=discord.Embed(title="You have been warned", color = 0xff0000)
+  embed.add_field(name="Warned", value=f"You were warned by {interaction.user.name} for {reason}",)
+  embed.set_thumbnail(url="url")
+  await user.send(embed=embed)
+  embed2 = discord.Embed(title="User warned", color = 0x992d22)
+  await interaction.response.send_message(embed=embed2)
+  
+  
+
+client.run(my_secret)
