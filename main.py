@@ -106,4 +106,4 @@ async def warn(interaction:discord.Interaction, user: discord.Member, reason:str
   
   
 
-client.run(my_secret)
+client.run(token)
