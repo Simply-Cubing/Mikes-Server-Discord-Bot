@@ -3,6 +3,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import os
+from keep_alive import keep_alive
 from discord.app_commands import CommandTree
 import asyncio
 
@@ -12,7 +13,7 @@ client = discord.Client(intents=intents)
 tree = CommandTree(client)
 client.tree = tree
 
-logo_url = url
+logo_url = "url"
 
 #login messages
 @client.event
@@ -38,13 +39,21 @@ async def on_raw_reaction_add(payload):
     emoji_str = str(payload.emoji)
     guild = client.get_guild(payload.guild_id)
     user = guild.get_member(payload.user_id)
-    if payload.message_id == int(os.environ['MSG_ID']) and emoji_str == emoji:
-        await user.add_roles(guild.get_role(int(os.environ['PING_ROLE_ID'])))
-    elif payload.message_id == int(os.environ['MSG_ID']) and emoji_str != emoji:
+    if payload.message_id == MSG_ID and emoji_str == emoji:
+        await user.add_roles(guild.get_role(PING_ROLE_ID)
+        embed = discord.Embed(title="Role Given")
+        embed.add_field(name="You were given the 'Bot Update Ping Role' in 'Mike's Server'", value="If you would not like this role please remove your reaction")
+        embed.set_thumbnail(url=logo_url)
+        await user.send(embed=embed)
+    elif payload.message_id == int(PING_ROLE_ID) and emoji_str != emoji:
         pass
-    elif payload.message_id == int(os.environ['MSG_ID_2']) and emoji_str == emoji:
-        await user.add_roles(guild.get_role(int(os.environ['POLL_ROLE'])))
-    elif payload.message_id == int(os.environ['MSG_ID_2']) and emoji_str != emoji:
+    elif payload.message_id == MSG_ID_2 and emoji_str == emoji:
+        await user.add_roles(guild.get_role(POLL_ROLE)
+        embed = discord.Embed(title="Role Given")
+        embed.add_field(name="You were given the 'Poll Role' in 'Mike's Server'", value="If you would not like this role please remove your reaction")
+        embed.set_thumbnail(url=logo_url)
+        await user.send(embed=embed)
+    elif payload.message_id == MSG_ID_2 and emoji_str != emoji:
         pass
     
 #reaction roles remove
@@ -54,10 +63,10 @@ async def on_raw_reaction_remove(payload):
     emoji_str = str(payload.emoji)
     guild = client.get_guild(payload.guild_id)
     user = guild.get_member(payload.user_id)
-    message_id = int(os.environ['MSG_ID'])
-    message_id2 = int(os.environ['MSG_ID_2'])
-    role_id = int(os.environ['PING_ROLE_ID'])
-    role_id2 = int(os.environ['POLL_ROLE'])
+    message_id = MSG_ID
+    message_id2 = MSG_ID_2
+    role_id = PING_ROLE_ID
+    role_id2 = POLL_ROLE
     if payload.message_id == message_id and emoji_str == emoji:
         await user.remove_roles(guild.get_role(role_id))
     elif payload.message_id == message_id and emoji_str != emoji:
@@ -69,14 +78,14 @@ async def on_raw_reaction_remove(payload):
 
 @client.event
 async def on_member_join(user):
-  verified_role = discord.utils.get(user.guild.roles,id = int(os.environ['VERIFIED']))
-  joined_role = discord.utils.get(user.guild.roles, id = int(os.environ['JOINED_ROLE']))
+  verified_role = discord.utils.get(user.guild.roles,id = VERIFIED)
+  joined_role = discord.utils.get(user.guild.roles, id = JOINED)
   await user.add_roles(joined_role)
   embed1 = discord.Embed(title = "Thank you for joining",)
   embed1.add_field(name = 'Please wait two minutes', value='After those two minutes you will be given the "verified" role')
   embed1.set_thumbnail(url = logo_url)
   await user.send(embed=embed1)
-  await asyncio.sleep(30)
+  await asyncio.sleep(120)
   await user.add_roles(verified_role)
   embed2 = discord.Embed(title="You have been verified. Enjoy our server!")
   embed2.set_thumbnail(url = logo_url)
@@ -111,8 +120,6 @@ async def add(interaction: discord.Interaction, ban_reason: discord.app_commands
     await interaction.response.send_message(embed=embed)
     request = f'{interaction.user.name} was banned for {ban_reason.name}. {interaction.user.name} wants to be unbanned because "{unban_reason}", {interaction.user.name} would also like to mention that "{additional_info}", '
 
-    Id1 = int(os.environ['ID1'])
-    Id2 = int(os.environ['ID2'])
     user1 = client.get_user(Id1)
     user2 = client.get_user(Id2)
     embed2 = discord.Embed(title="Ban appeal submitted", color = 0xffff00)
@@ -134,7 +141,7 @@ async def ban(interaction:discord.Interaction, user:discord.Member, reason:str):
     embed = discord.Embed(title="You have been banned", color=0)
     embed.add_field(name = "Banned", value=f"You were banned for {reason}. If you would like to submit an appeal to be unbanned please join the server below and run '/submit_appeal'",)
     embed.set_thumbnail(url=logo_url)
-    embed2 = discord.Embed(title="HERE", color = 0x0000ff, url = "https://discord.gg/Jnt3A5cS")
+    embed2 = discord.Embed(title="HERE", color = 0x0000ff, url = "server")
     embed2.add_field(name="Submit Appeal Server", value="please submit your ban appeal here, nowhere else.")
     embed2.set_thumbnail(url=logo_url)
     await user.send(embed=embed)
