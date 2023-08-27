@@ -15,13 +15,17 @@ Currently contains moderation features but games and random fun stuff will be ad
 ### List of undefined varaibles 
 ```logo_url``` = replace ```"url"``` with a valid image URL  
 
+```url = logo_url``` in 
+```py
+embed.set_thumbnail(url=logo_url)
+```
+replace ```logo_url``` with any valid image URL
+
 ```MSG_ID``` and ```MSG_ID_2``` replace with a [discord message id](https://www.followchain.org/copy-message-id-discord/)  
 
 ```PING_ROLE_ID```, ```POLL_ROLL```, ```VERIFIED```,```JOINED``` replace with a valid [discord role id](https://www.itgeared.com/how-to-get-role-id-on-discord/)  
 
 ```Id1``` replace with a valid [discord user id](https://www.remote.tools/remote-work/how-to-find-discord-id#)  
-
-For ```url``` in line 200 replace it with your desired URL  
 
 ### For all ```color``` variables (excluding ln 207 and 208), you may use any color of choice, but they need to be entered in a certain form:
 1. Use [this](https://htmlcolorcodes.com/color-picker/) link to get your desired color in **HEX**
