@@ -121,12 +121,10 @@ async def add(interaction: discord.Interaction, ban_reason: discord.app_commands
     request = f'{interaction.user.name} was banned for {ban_reason.name}. {interaction.user.name} wants to be unbanned because "{unban_reason}", {interaction.user.name} would also like to mention that "{additional_info}", '
 
     user1 = client.get_user(Id1)
-    user2 = client.get_user(Id2)
     embed2 = discord.Embed(title="Ban appeal submitted", color = 0xffff00)
     embed2.add_field(name=f"Appeal submitted by {interaction.user.name}", value=request)
     embed2.set_thumbnail(url=logo_url)
     await user1.send(embed=embed2)
-    await user2.send(embed=embed2)
   except Exception as e:
     await interaction.response.send_message(e)
 
