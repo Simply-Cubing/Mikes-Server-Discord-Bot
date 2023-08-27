@@ -1,8 +1,8 @@
 # Mikes-Server-Discord-Bot
 
-# Discord Bot for "Mike's Server"
+Discord Bot for "Mike's Server"
 
-# Currently contains moderation features but games and random fun stuff will be added shortly
+Currently contains moderation features but games and random fun stuff will be added shortly
 
 # If you would like to use the code for this bot for your own bot follow these steps:
 
