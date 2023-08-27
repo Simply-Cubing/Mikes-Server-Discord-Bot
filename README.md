@@ -23,6 +23,6 @@ Currently contains moderation features but games and random fun stuff will be ad
 
 For ```url``` in line 200 replace it with your desired URL  
 
-### For all ```color``` variables, you may use any color of choice, but they need to be entered in a certain form:
+### For all ```color``` variables (excluding ln 207 and 208), you may use any color of choice, but they need to be entered in a certain form:
 1. Use [this](https://htmlcolorcodes.com/color-picker/) link to get your desired color in **HEX**
 2. Replace the "#" at the start with "0x" or use my [discord color converter](https://github.com/Simply-Cubing/Mikes-Server-Discord-Bot/blob/main/discord-colour-converter.py)
