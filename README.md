@@ -7,7 +7,7 @@ Currently contains moderation features but games and random fun stuff will be ad
 ## If you would like to use the code for this bot for your own bot follow these steps:
 
 1. Follow this [tutorial](https://www.youtube.com/watch?v=SPTfmiYiuok) up to 6:02
-2. Replace ```TOKEN``` (line 215) with your bot's token
+2. Replace ```TOKEN``` (line 215) with your bot's token (KEEP YOUR TOKEN SECRET)
 3. Look for all the undefined variables (list below) and replace them with appropriate values (e.g an image url for ```logo_url```)
 4. Copy the code you want to use (you MUST include lines 1-31 and line 215)
 5. Ask me questions in [ISSUES](https://github.com/Simply-Cubing/Mikes-Server-Discord-Bot/issues)
