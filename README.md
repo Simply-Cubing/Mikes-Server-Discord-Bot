@@ -19,7 +19,7 @@ Currently contains moderation features but games and random fun stuff will be ad
 
 ```PING_ROLE_ID```, ```POLL_ROLL```, ```VERIFIED```,```JOINED``` replace with a valid [discord role id](https://www.itgeared.com/how-to-get-role-id-on-discord/)  
 
-```Id1``` and ```Id2``` replace with a valid [discord user id](https://www.remote.tools/remote-work/how-to-find-discord-id#)  
+```Id1``` replace with a valid [discord user id](https://www.remote.tools/remote-work/how-to-find-discord-id#)  
 
 For ```url``` in line 200 replace it with your desired URL  
 
