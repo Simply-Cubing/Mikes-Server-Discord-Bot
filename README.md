@@ -13,7 +13,7 @@ Currently contains moderation features but games and random fun stuff will be ad
 5. Ask me questions in [ISSUES](https://github.com/Simply-Cubing/Mikes-Server-Discord-Bot/issues)
 
 ### List of undefined varaibles 
-```logo_url``` = replace ```"url``` with a valid image URL  
+```logo_url``` = replace ```"url"``` with a valid image URL  
 
 ```MSG_ID``` and ```MSG_ID_2``` replace with a [discord message id](https://www.followchain.org/copy-message-id-discord/)  
 
