@@ -195,6 +195,20 @@ async def warn(interaction:discord.Interaction, user: discord.Member, reason:str
   embed2 = discord.Embed(title="User warned", color = 0x992d22)
   embed2.add_field(name=f"{user}",value="")
   await interaction.response.send_message(embed=embed2)
+
+@client.tree.command(name="get_warns",description = "get the number of warnings and reason for warns of a user")
+@commands.has_permissions(ban_members=True)
+async def get_warns(interaction:discord.Interaction, user: discord.Member):
+  conn = sqlite3.connect('warnings.db')
+  cursor = conn.cursor()
+  warn_info = cursor.execute(f"SELECT num_warnings FROM warnings WHERE user_id = {user.id}").fetchall()
+  warn_info = warn_info[0][0]
+  conn.commit()
+  conn.close()
+  embed = discord.Embed(title=f"Warning info for {user.name}",color=0xff0000)
+  embed.add_field(name=f"{user.name} has {warn_info} warnings",value="you may remove a warning with /remove_warn (not actually a command yet)")
+  embed.set_thumbnail(url=logo_url)
+  await interaction.response.send_message(embed=embed)
   
 #deny appeal command
 @client.tree.command(name="deny", description = "Denies a ban appeal")
