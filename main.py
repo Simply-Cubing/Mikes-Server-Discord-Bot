@@ -6,6 +6,7 @@ import os
 from keep_alive import keep_alive
 from discord.app_commands import CommandTree
 import asyncio
+import sqlite3
 
 #client and command tree setup
 intents = discord.Intents().all()
@@ -14,6 +15,19 @@ tree = CommandTree(client)
 client.tree = tree
 
 logo_url = "url"
+
+#sqlite setup
+num_warnings = 0
+
+conn = sqlite3.connect('warnings.db')
+cursor = conn.cursor()
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS warnings(
+  user_id INTEGER PRIMARY KEY,
+  num_warnings INTEGER)
+''')
+conn.commit()
+conn.close()
 
 #login messages
 @client.event
@@ -163,6 +177,17 @@ async def ban(interaction:discord.Interaction, user:discord.Member, reason:str):
 @app_commands.describe(reason="Reason for warning")
 @commands.has_permissions(ban_members=True)
 async def warn(interaction:discord.Interaction, user: discord.Member, reason:str):
+  #sqlite 
+  global num_warnings
+  conn = sqlite3.connect('warnings.db')
+  cursor = conn.cursor()
+  cursor.execute("INSERT or REPLACE INTO warnings VALUES(?,?)",(user.id,num_warnings))
+  cursor.execute(f"UPDATE warnings SET num_warnings = num_warnings + 1 WHERE user_id = {user.id}")
+  num_warnings = cursor.execute("SELECT user_id, num_warnings FROM warnings").fetchall()
+  num_warnings = num_warnings[0][1]
+  conn.commit()
+  conn.close()
+  #actual stuff you see in discord
   embed=discord.Embed(title="You have been warned", color = 0xff0000)
   embed.add_field(name="Warned", value=f"You were warned by {interaction.user.name} for {reason}",)
   embed.set_thumbnail(url=logo_url)
