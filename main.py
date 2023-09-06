@@ -75,16 +75,20 @@ async def on_raw_reaction_remove(payload):
     elif payload.message_id == message_id and emoji_str != emoji:
         pass
 
+#user join event
 @client.event
 async def on_member_join(user):
   verified_role = discord.utils.get(user.guild.roles,id = VERIFIED)
   joined_role = discord.utils.get(user.guild.roles, id = JOINED)
+  #gives a permissionless role on join
   await user.add_roles(joined_role)
   embed1 = discord.Embed(title = "Thank you for joining",)
   embed1.add_field(name = 'Please wait two minutes', value='After those two minutes you will be given the "verified" role')
   embed1.set_thumbnail(url = logo_url)
   await user.send(embed=embed1)
+  #waits two minutes
   await asyncio.sleep(120)
+  #gives the verified role
   await user.add_roles(verified_role)
   embed2 = discord.Embed(title="You have been verified. Enjoy our server!")
   embed2.set_thumbnail(url = logo_url)
@@ -96,6 +100,7 @@ async def on_member_join(user):
 @app_commands.describe(ban_reason="cause of your ban, if you choose 'other' PLEASE fill out 'additional_info'")
 @app_commands.describe(unban_reason="why should you be unbanned")
 @app_commands.describe(ban_reason='unban reasons')
+#choices
 @app_commands.choices(ban_reason=[
   discord.app_commands.Choice(name='NSFW', value = 1),
   discord.app_commands.Choice(name='Discrimination', value = 2),
@@ -141,6 +146,7 @@ async def ban(interaction:discord.Interaction, user:discord.Member, reason:str):
     embed2 = discord.Embed(title="HERE", color = 0x0000ff, url = "server")
     embed2.add_field(name="Submit Appeal Server", value="please submit your ban appeal here, nowhere else.")
     embed2.set_thumbnail(url=logo_url)
+    #sends the messages before actually banning the user because otherwise the bot would be unable to DM the user
     await user.send(embed=embed)
     await user.send(embed=embed2)
     
@@ -149,6 +155,7 @@ async def ban(interaction:discord.Interaction, user:discord.Member, reason:str):
     embed3.add_field(name = "Banned", value=f'{user.mention} has been banned for "{reason}"')
     embed3.set_thumbnail(url=logo_url)
     await interaction.response.send_message(embed = embed3)
+    #error cases stuff idk what they're called
   except Exception as e:
     embed4= discord.Embed(title=f"Unable to ban {user}", color = 0x992d22)
     embed4.add_field(name="Ban failure",value=f"""An error occured when you tried to ban this user. You likely do not have the permissions to ban this member. 
@@ -157,6 +164,7 @@ async def ban(interaction:discord.Interaction, user:discord.Member, reason:str):
     embed4.set_thumbnail(url=logo_url)
     await interaction.response.send_message(embed=embed4)
 
+#warn command
 @client.tree.command(name="warn", description = "Warns a user")
 @app_commands.describe(user="User you want to warn")
 @app_commands.describe(reason="Reason for warning")
@@ -169,6 +177,7 @@ async def warn(interaction:discord.Interaction, user: discord.Member, reason:str
   embed2 = discord.Embed(title="User warned", color = 0x992d22)
   embed2.add_field(name=f"{user}",value="")
   await interaction.response.send_message(embed=embed2)
+  #sql-integration branch to see what im working on
   
 #deny appeal command
 @client.tree.command(name="deny", description = "Denies a ban appeal")
@@ -188,6 +197,7 @@ async def deny(interaction:discord.Interaction, user: discord.Member, reason:str
 async def accept(interaction:discord.Interaction, user: discord.Member):
   embed=discord.Embed(title="Appeal Accepted", color = 0xff0000)
   embed.add_field(name="Accepted", value="Your ban appeal 'Mike's Server' was accept, you will be unbanned shortly")
+  #manual unban currently required 
   embed.set_thumbnail(url=logo_url)
   await user.send(embed=embed)
 
