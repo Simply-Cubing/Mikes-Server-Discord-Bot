@@ -15,11 +15,11 @@ Currently contains moderation features but games and random fun stuff will be ad
 ### List of undefined varaibles 
 ```logo_url``` = replace ```"url"``` with a valid image URL  
 
-```url = logo_url``` in 
+```url = logo_url``` in  
 ```py
-embed.set_thumbnail(url=logo_url)
+embed.set_thumbnail(url=logo_url) 
 ```
-replace ```logo_url``` with any valid image URL
+replace ```logo_url``` with any valid image URL 
 
 ```MSG_ID``` and ```MSG_ID_2``` replace with a [discord message id](https://www.followchain.org/copy-message-id-discord/)  
 
