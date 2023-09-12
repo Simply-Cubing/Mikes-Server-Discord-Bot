@@ -247,5 +247,58 @@ async def send_embed(interaction: discord.Interaction, inline: bool, title: str,
   embed.add_field(name=name, value = value, inline = inline)
   embed.set_thumbnail(url=logo_url)
   await interaction.response.send_message(embed=embed)
+
+#button class
+class Buttons(discord.ui.View):
+    def __init__(self, *, timeout=180):
+        super().__init__(timeout=timeout)
+    @discord.ui.button(label="Suggestion Ticket",style=discord.ButtonStyle.green)
+    #functions for different buttons
+    async def suggest_button(self,interaction:discord.Interaction,button:discord.ui.Button):
+      channel = client.get_channel(int(os.environ['SUGGESTION_CHANNEL_ID']))
+      guild = interaction.guild
+      user = interaction.user
+      await interaction.user.add_roles((guild.get_role(int(os.environ['SUGGESTION_ROLE_ID']))))
+      embed=discord.Embed(title="You have opened ticketing room with the admins",color=0xff0000)
+      embed.add_field(name="Please remain patient as you wait for an admin to get online",value="Thank You")
+      embed.set_thumbnail(url=logo_url)
+      await user.send(embed=embed)
+      await channel.send(f"{user.mention} you may discuss your issue with the admins here")
+      await interaction.response.send_message(embed=embed,ephemeral = True)
+    @discord.ui.button(label="Report Ticket",style=discord.ButtonStyle.blurple) 
+    async def report_ticket(self,interaction:discord.Interaction,button:discord.ui.Button):
+      channel = client.get_channel(int(os.environ['REPORT_CHANNEL_ID']))
+      guild = interaction.guild
+      user = interaction.user
+      await interaction.user.add_roles((guild.get_role(int(os.environ['REPORT_ROLE_ID']))))
+      embed=discord.Embed(title="You have opened ticketing room with the admins",color=0xff0000)
+      embed.add_field(name="Please remain patient as you wait for an admin to get online",value="Thank You")
+      embed.set_thumbnail(url=logo_url)
+      await user.send(embed=embed)
+      await channel.send(f"{user.mention} you may discuss your issue with the admins here")
+      await interaction.response.send_message(embed=embed,ephemeral = True)
+    @discord.ui.button(label="Miscellaneous Ticket",style=discord.ButtonStyle.red,) 
+    async def miscellaneous_button(self,interaction:discord.Interaction,button:discord.ui.Button):
+      channel = client.get_channel(int(os.environ['MISC_CHANNEL_ID']))
+      guild = interaction.guild
+      user = interaction.user
+      await interaction.user.add_roles((guild.get_role(int(os.environ['MISC_ROLE_ID']))))
+      embed=discord.Embed(title="You have opened ticketing room with the admins",color=0xff0000)
+      embed.add_field(name="Please remain patient as you wait for an admin to get online",value="Thank You")
+      embed.set_thumbnail(url=logo_url)
+      await user.send(embed=embed)
+      await channel.send(f"{user.mention} you may discuss your issue with the admins here")
+      await interaction.response.send_message(embed=embed,ephemeral = True)
+
+@client.tree.command(name="ticket",description="Submit a ticket so you can discuss issues with the admins")
+async def ticket(interaction:discord.Interaction):
+  await interaction.response.send_message("What kind of ticket do you want to submit",view=Buttons())
+
+@client.tree.command(name="purge",description="deletes all messages")
+@app_commands.checks.has_permissions(ban_members=True)
+async def purge(interaction:discord.Interaction,limit:int):
+  await interaction.response.send_message("Purging")
+  await interaction.channel.purge(limit=limit)
   
+client.run(TOKEN)
 client.run(TOKEN)
