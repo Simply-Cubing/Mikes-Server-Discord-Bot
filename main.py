@@ -3,8 +3,10 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import os
+from keep_alive import keep_alive
 from discord.app_commands import CommandTree
 import asyncio
+
 
 #client and command tree setup
 intents = discord.Intents().all()
@@ -12,7 +14,7 @@ client = discord.Client(intents=intents)
 tree = CommandTree(client)
 client.tree = tree
 
-logo_url = "url"
+logo_url = "img_url"
 
 #login messages
 @client.event
@@ -22,7 +24,7 @@ async def on_ready():
   print("connected to:")
   for guild in client.guilds:
     print("\t\t- {}".format(guild.name))
-  await client.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.listening, name="ban appeals"))
+  await client.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.listening, name="stuff"))
   print(f'''
 > logged in as {client.user}''')
   try:
@@ -38,21 +40,21 @@ async def on_raw_reaction_add(payload):
     emoji_str = str(payload.emoji)
     guild = client.get_guild(payload.guild_id)
     user = guild.get_member(payload.user_id)
-    if payload.message_id == MSG_ID and emoji_str == emoji:
-        await user.add_roles(guild.get_role(PING_ROLE_ID)
+    if payload.message_id == int(os.environ['MSG_ID']) and emoji_str == emoji:
+        await user.add_roles(guild.get_role(int(os.environ['PING_ROLE_ID'])))
         embed = discord.Embed(title="Role Given")
         embed.add_field(name="You were given the 'Bot Update Ping Role' in 'Mike's Server'", value="If you would not like this role please remove your reaction")
         embed.set_thumbnail(url=logo_url)
         await user.send(embed=embed)
-    elif payload.message_id == int(PING_ROLE_ID) and emoji_str != emoji:
+    elif payload.message_id == int(os.environ['MSG_ID']) and emoji_str != emoji:
         pass
-    elif payload.message_id == MSG_ID_2 and emoji_str == emoji:
-        await user.add_roles(guild.get_role(POLL_ROLE)
+    elif payload.message_id == int(os.environ['MSG_ID_2']) and emoji_str == emoji:
+        await user.add_roles(guild.get_role(int(os.environ['POLL_ROLE'])))
         embed = discord.Embed(title="Role Given")
         embed.add_field(name="You were given the 'Poll Role' in 'Mike's Server'", value="If you would not like this role please remove your reaction")
         embed.set_thumbnail(url=logo_url)
         await user.send(embed=embed)
-    elif payload.message_id == MSG_ID_2 and emoji_str != emoji:
+    elif payload.message_id == int(os.environ['MSG_ID_2']) and emoji_str != emoji:
         pass
     
 #reaction roles remove
@@ -62,10 +64,10 @@ async def on_raw_reaction_remove(payload):
     emoji_str = str(payload.emoji)
     guild = client.get_guild(payload.guild_id)
     user = guild.get_member(payload.user_id)
-    message_id = MSG_ID
-    message_id2 = MSG_ID_2
-    role_id = PING_ROLE_ID
-    role_id2 = POLL_ROLE
+    message_id = int(os.environ['MSG_ID'])
+    message_id2 = int(os.environ['MSG_ID_2'])
+    role_id = int(os.environ['PING_ROLE_ID'])
+    role_id2 = int(os.environ['POLL_ROLE'])
     if payload.message_id == message_id and emoji_str == emoji:
         await user.remove_roles(guild.get_role(role_id))
     elif payload.message_id == message_id and emoji_str != emoji:
@@ -75,32 +77,38 @@ async def on_raw_reaction_remove(payload):
     elif payload.message_id == message_id and emoji_str != emoji:
         pass
 
-#user join event
 @client.event
 async def on_member_join(user):
-  verified_role = discord.utils.get(user.guild.roles,id = VERIFIED)
-  joined_role = discord.utils.get(user.guild.roles, id = JOINED)
-  #gives a permissionless role on join
+  channel = client.get_channel(int(os.environ['MAIN_CHANNEL_ID']))
+  rules_channel=client.get_channel(int(os.environ["RULES_CHANNEL_ID"]))
+  roles_channel=client.get_channel(int(os.environ["ROLES_CHANNEL_ID"]))
+  staff_channel=client.get_channel(int(os.environ["STAFF_CHANNEL_ID"]))
+  embed = discord.Embed(title="Welcome to our server",color = 0xff0000)
+  embed.add_field(name=f"Please read {rules_channel.mention} and choose some roles in {roles_channel.mention}", value=f"Thank you {user.name} for joining our server, enjoy your time!")
+  embed.set_thumbnail(url=logo_url)
+  await channel.send(embed=embed)
+  verified_role = discord.utils.get(user.guild.roles,id = int(os.environ['VERIFIED']))
+  joined_role = discord.utils.get(user.guild.roles, id = int(os.environ['JUST_JOINED']))
   await user.add_roles(joined_role)
-  embed1 = discord.Embed(title = "Thank you for joining",)
-  embed1.add_field(name = 'Please wait two minutes', value='After those two minutes you will be given the "verified" role')
+  embed1 = discord.Embed(title = "Thank you for joining",color=0x0000ff)
+  embed1.add_field(name = 'Please wait two minutes', value='After those two minutes you will be given the "wonderful members" role')
   embed1.set_thumbnail(url = logo_url)
   await user.send(embed=embed1)
-  #waits two minutes
   await asyncio.sleep(120)
-  #gives the verified role
   await user.add_roles(verified_role)
-  embed2 = discord.Embed(title="You have been verified. Enjoy our server!")
-  embed2.set_thumbnail(url = logo_url)
+  embed2 = discord.Embed(title="You have been verified. Enjoy our server!",color=0x000000)
+  embed2.set_image(url = logo_url)
   await user.send(embed=embed2)
-
+  embed3 = discord.Embed(title=f"{user.name} has joined")
+  embed3.set_image(url=logo_url)
+  await staff_channel.send(embed=embed3)
+  await user.remove_roles(joined_role)
 
 #submit appeal command
 @client.tree.command(name="submit_appeal", description = "If you were banned and would like to be unbanned use submit a ban appeal here")
 @app_commands.describe(ban_reason="cause of your ban, if you choose 'other' PLEASE fill out 'additional_info'")
 @app_commands.describe(unban_reason="why should you be unbanned")
 @app_commands.describe(ban_reason='unban reasons')
-#choices
 @app_commands.choices(ban_reason=[
   discord.app_commands.Choice(name='NSFW', value = 1),
   discord.app_commands.Choice(name='Discrimination', value = 2),
@@ -124,11 +132,13 @@ async def add(interaction: discord.Interaction, ban_reason: discord.app_commands
     await interaction.response.send_message(embed=embed)
     request = f'{interaction.user.name} was banned for {ban_reason.name}. {interaction.user.name} wants to be unbanned because "{unban_reason}", {interaction.user.name} would also like to mention that "{additional_info}", '
 
-    user1 = client.get_user(Id1)
+    Id = int(os.environ['ID'])
+    user = client.get_user(Id)
     embed2 = discord.Embed(title="Ban appeal submitted", color = 0xffff00)
     embed2.add_field(name=f"Appeal submitted by {interaction.user.name}", value=request)
     embed2.set_thumbnail(url=logo_url)
     await user1.send(embed=embed2)
+    await user2.send(embed=embed2)
   except Exception as e:
     await interaction.response.send_message(e)
 
@@ -143,10 +153,9 @@ async def ban(interaction:discord.Interaction, user:discord.Member, reason:str):
     embed = discord.Embed(title="You have been banned", color=0)
     embed.add_field(name = "Banned", value=f"You were banned for {reason}. If you would like to submit an appeal to be unbanned please join the server below and run '/submit_appeal'",)
     embed.set_thumbnail(url=logo_url)
-    embed2 = discord.Embed(title="HERE", color = 0x0000ff, url = "server")
+    embed2 = discord.Embed(title="HERE", color = 0x0000ff, url = "server_url")
     embed2.add_field(name="Submit Appeal Server", value="please submit your ban appeal here, nowhere else.")
     embed2.set_thumbnail(url=logo_url)
-    #sends the messages before actually banning the user because otherwise the bot would be unable to DM the user
     await user.send(embed=embed)
     await user.send(embed=embed2)
     
@@ -155,7 +164,6 @@ async def ban(interaction:discord.Interaction, user:discord.Member, reason:str):
     embed3.add_field(name = "Banned", value=f'{user.mention} has been banned for "{reason}"')
     embed3.set_thumbnail(url=logo_url)
     await interaction.response.send_message(embed = embed3)
-    #error cases stuff idk what they're called
   except Exception as e:
     embed4= discord.Embed(title=f"Unable to ban {user}", color = 0x992d22)
     embed4.add_field(name="Ban failure",value=f"""An error occured when you tried to ban this user. You likely do not have the permissions to ban this member. 
@@ -163,8 +171,12 @@ async def ban(interaction:discord.Interaction, user:discord.Member, reason:str):
     ERROR = {e}""")
     embed4.set_thumbnail(url=logo_url)
     await interaction.response.send_message(embed=embed4)
+    await asyncio.sleep(5)
+    embed5 = discord.Embed(title="An error occured when trying to ban you",color=0xff0000)
+    embed5.add_field(name="You have not been banned",value="Sorry for the inconvenience")
+    embed5.set_thumbnail(url=logo_url)
+    await user.send(embed=embed5)
 
-#warn command
 @client.tree.command(name="warn", description = "Warns a user")
 @app_commands.describe(user="User you want to warn")
 @app_commands.describe(reason="Reason for warning")
@@ -177,7 +189,6 @@ async def warn(interaction:discord.Interaction, user: discord.Member, reason:str
   embed2 = discord.Embed(title="User warned", color = 0x992d22)
   embed2.add_field(name=f"{user}",value="")
   await interaction.response.send_message(embed=embed2)
-  #sql-integration branch to see what im working on
   
 #deny appeal command
 @client.tree.command(name="deny", description = "Denies a ban appeal")
@@ -197,7 +208,6 @@ async def deny(interaction:discord.Interaction, user: discord.Member, reason:str
 async def accept(interaction:discord.Interaction, user: discord.Member):
   embed=discord.Embed(title="Appeal Accepted", color = 0xff0000)
   embed.add_field(name="Accepted", value="Your ban appeal 'Mike's Server' was accept, you will be unbanned shortly")
-  #manual unban currently required 
   embed.set_thumbnail(url=logo_url)
   await user.send(embed=embed)
 
@@ -218,5 +228,57 @@ async def send_embed(interaction: discord.Interaction, inline: bool, title: str,
   embed.add_field(name=name, value = value, inline = inline)
   embed.set_thumbnail(url=logo_url)
   await interaction.response.send_message(embed=embed)
+
+#button class
+class Buttons(discord.ui.View):
+    def __init__(self, *, timeout=180):
+        super().__init__(timeout=timeout)
+    @discord.ui.button(label="Suggestion Ticket",style=discord.ButtonStyle.green)
+    #functions for different buttons
+    async def suggest_button(self,interaction:discord.Interaction,button:discord.ui.Button):
+      channel = client.get_channel(int(os.environ['SUGGESTION_CHANNEL_ID']))
+      guild = interaction.guild
+      user = interaction.user
+      await interaction.user.add_roles((guild.get_role(int(os.environ['SUGGESTION_ROLE_ID']))))
+      embed=discord.Embed(title="You have opened ticketing room with the admins",color=0xff0000)
+      embed.add_field(name="Please remain patient as you wait for an admin to get online",value="Thank You")
+      embed.set_thumbnail(url=logo_url)
+      await user.send(embed=embed)
+      await channel.send(f"{user.mention} you may discuss your issue with the admins here")
+      await interaction.response.send_message(embed=embed,ephemeral = True)
+    @discord.ui.button(label="Report Ticket",style=discord.ButtonStyle.blurple) 
+    async def report_ticket(self,interaction:discord.Interaction,button:discord.ui.Button):
+      channel = client.get_channel(int(os.environ['REPORT_CHANNEL_ID']))
+      guild = interaction.guild
+      user = interaction.user
+      await interaction.user.add_roles((guild.get_role(int(os.environ['REPORT_ROLE_ID']))))
+      embed=discord.Embed(title="You have opened ticketing room with the admins",color=0xff0000)
+      embed.add_field(name="Please remain patient as you wait for an admin to get online",value="Thank You")
+      embed.set_thumbnail(url=logo_url)
+      await user.send(embed=embed)
+      await channel.send(f"{user.mention} you may discuss your issue with the admins here")
+      await interaction.response.send_message(embed=embed,ephemeral = True)
+    @discord.ui.button(label="Miscellaneous Ticket",style=discord.ButtonStyle.red,) 
+    async def miscellaneous_button(self,interaction:discord.Interaction,button:discord.ui.Button):
+      channel = client.get_channel(int(os.environ['MISC_CHANNEL_ID']))
+      guild = interaction.guild
+      user = interaction.user
+      await interaction.user.add_roles((guild.get_role(int(os.environ['MISC_ROLE_ID']))))
+      embed=discord.Embed(title="You have opened ticketing room with the admins",color=0xff0000)
+      embed.add_field(name="Please remain patient as you wait for an admin to get online",value="Thank You")
+      embed.set_thumbnail(url=logo_url)
+      await user.send(embed=embed)
+      await channel.send(f"{user.mention} you may discuss your issue with the admins here")
+      await interaction.response.send_message(embed=embed,ephemeral = True)
+
+@client.tree.command(name="ticket",description="Submit a ticket so you can discuss issues with the admins")
+async def ticket(interaction:discord.Interaction):
+  await interaction.response.send_message("What kind of ticket do you want to submit",view=Buttons())
+
+@client.tree.command(name="purge",description="deletes all messages")
+@app_commands.checks.has_permissions(ban_members=True)
+async def purge(interaction:discord.Interaction,limit:int):
+  await interaction.response.send_message("Purging")
+  await interaction.channel.purge(limit=limit)
   
 client.run(TOKEN)
