@@ -13,8 +13,11 @@ Currently contains moderation features but games and random fun stuff will be ad
 5. Ask me questions in [ISSUES](https://github.com/Simply-Cubing/Mikes-Server-Discord-Bot/issues)
 
 ### List of undefined varaibles 
-If a variable begins with ```python
-(int(os.environ["something"])``` replace it with any valid variable
+If a variable begins with 
+```py
+int(os.environ["something"]) 
+```
+replace it with any valid variable
 
 ### For all ```color``` variables (excluding ln 207 and 208), you may use any color of choice, but they need to be entered in a certain form:
 1. Use [this](https://htmlcolorcodes.com/color-picker/) link to get your desired color in **HEX**
