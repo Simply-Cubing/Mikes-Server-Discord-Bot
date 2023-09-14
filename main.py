@@ -280,5 +280,38 @@ async def ticket(interaction:discord.Interaction):
 async def purge(interaction:discord.Interaction,limit:int):
   await interaction.response.send_message("Purging")
   await interaction.channel.purge(limit=limit)
+
+@client.tree.command(name="get_math_question",description="get a math question")
+async def math(interaction:discord.Interaction):
+  num1 = random.randint(1,20)
+  num2 = random.randint(1,20)
+  global num_answer
+  num_answer = num1+num2
+  embed = discord.Embed(title=f"""Q: {num1} + {num2}
+
+
+run /submit_answer to type your answer""",color = 0xabcdef)
+  embed.set_thumbnail(url=logo_url)
+  await interaction.response.send_message(embed=embed)
   
+  global starttime
+  starttime = time.time()
+  
+@client.tree.command(name="submit_answer",description="submit your answer to the question")
+@app_commands.describe(answer="your answer to the math question")
+async def submit_answer(interaction:discord.Interaction,answer:int):
+  global num_answer
+  global starttime
+  if answer == num_answer:
+    answer_time = round((time.time() - starttime),3)
+    embed= discord.Embed(title=f"Correct! it took you {answer_time} seconds to solve the problem")
+    embed.set_image(url="https://streamsentials.com/wp-content/uploads/pogchamp-twitch-emote.png")
+    embed.set_thumbnail(url=logo_url)
+    await interaction.response.send_message(embed=embed)
+  else:
+    embed=discord.Embed(title=f"Incorrect, the answer was {num_answer}")
+    embed.set_image(url="https://www.pngkey.com/png/detail/14-142665_pepe-png.png")
+    embed.set_thumbnail(url=logo_url)
+    await interaction.response.send_message(embed=embed)
+
 client.run(TOKEN)
