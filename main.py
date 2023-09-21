@@ -48,30 +48,36 @@ async def on_ready():
 #reaction roles add
 @client.event
 async def on_raw_reaction_add(payload):
+    #sets the emojis and the ids for guild and message
     emoji = "👍"
     emoji_str = str(payload.emoji)
     guild = client.get_guild(payload.guild_id)
     user = guild.get_member(payload.user_id)
     if payload.message_id == MSG_ID and emoji_str == emoji:
+        #gives the bot update role if the conditions above are met
         await user.add_roles(guild.get_role(PING_ROLE_ID)
         embed = discord.Embed(title="Role Given")
         embed.add_field(name="You were given the 'Bot Update Ping Role' in 'Mike's Server'", value="If you would not like this role please remove your reaction")
         embed.set_thumbnail(url=logo_url)
         await user.send(embed=embed)
-    elif payload.message_id == int(PING_ROLE_ID) and emoji_str != emoji:
+    elif payload.message_id == PING_ROLE_ID and emoji_str != emoji:
+          #does nothing if the emoji is not the thumbs up emoji
         pass
     elif payload.message_id == MSG_ID_2 and emoji_str == emoji:
+        #same thing but for the "poll role"
         await user.add_roles(guild.get_role(POLL_ROLE)
         embed = discord.Embed(title="Role Given")
         embed.add_field(name="You were given the 'Poll Role' in 'Mike's Server'", value="If you would not like this role please remove your reaction")
         embed.set_thumbnail(url=logo_url)
         await user.send(embed=embed)
     elif payload.message_id == MSG_ID_2 and emoji_str != emoji:
+        #same thing but for the "poll role"
         pass
     
 #reaction roles remove
 @client.event
 async def on_raw_reaction_remove(payload):
+  #defines emojis and ids
     emoji = "👍"
     emoji_str = str(payload.emoji)
     guild = client.get_guild(payload.guild_id)
@@ -81,28 +87,49 @@ async def on_raw_reaction_remove(payload):
     role_id = PING_ROLE_ID
     role_id2 = POLL_ROLE
     if payload.message_id == message_id and emoji_str == emoji:
+      #removes the role if they remove their reaction
         await user.remove_roles(guild.get_role(role_id))
     elif payload.message_id == message_id and emoji_str != emoji:
+      #does nothing if its the wrong emoji
         pass
     elif payload.message_id == message_id2 and emoji_str == emoji:
+      #same as above but for the "poll role"
         await user.remove_roles(guild.get_role(role_id2))
     elif payload.message_id == message_id and emoji_str != emoji:
+      #same as above but for the "poll role"
         pass
-
+      
+#user join event
 @client.event
 async def on_member_join(user):
-  verified_role = discord.utils.get(user.guild.roles,id = VERIFIED)
-  joined_role = discord.utils.get(user.guild.roles, id = JOINED)
+  #defines channels
+  channel = client.get_channel(int(os.environ['MAIN_CHANNEL_ID']))
+  rules_channel=client.get_channel(int(os.environ["RULES_CHANNEL_ID"]))
+  roles_channel=client.get_channel(int(os.environ["ROLES_CHANNEL_ID"]))
+  staff_channel=client.get_channel(int(os.environ["STAFF_CHANNEL_ID"]))
+  #sends a welcome embed
+  embed = discord.Embed(title="Welcome to our server",color = 0xff0000)
+  embed.add_field(name=f"Please read {rules_channel.mention} and choose some roles in {roles_channel.mention}", value=f"Thank you {user.name} for joining our server, enjoy your time!")
+  embed.set_thumbnail(url=logo_url)
+  await channel.send(embed=embed)
+  verified_role = discord.utils.get(user.guild.roles,id = int(os.environ['VERIFIED']))
+  joined_role = discord.utils.get(user.guild.roles, id = int(os.environ['JUST_JOINED']))
+  #gives a permissionless role
   await user.add_roles(joined_role)
-  embed1 = discord.Embed(title = "Thank you for joining",)
-  embed1.add_field(name = 'Please wait two minutes', value='After those two minutes you will be given the "verified" role')
+  embed1 = discord.Embed(title = "Thank you for joining",color=0x0000ff)
+  embed1.add_field(name = 'Please wait two minutes', value='After those two minutes you will be given the "wonderful members" role')
   embed1.set_thumbnail(url = logo_url)
   await user.send(embed=embed1)
   await asyncio.sleep(120)
+  #gives the "wonderful members" role
   await user.add_roles(verified_role)
-  embed2 = discord.Embed(title="You have been verified. Enjoy our server!")
-  embed2.set_thumbnail(url = logo_url)
+  embed2 = discord.Embed(title="You have been verified. Enjoy our server!",color=0x000000)
+  embed2.set_image(url = logo_url)
   await user.send(embed=embed2)
+  embed3 = discord.Embed(title=f"{user.name} has joined")
+  embed3.set_image(url=logo_url)
+  await staff_channel.send(embed=embed3)
+  await user.remove_roles(joined_role)
 
 
 #submit appeal command
@@ -110,6 +137,7 @@ async def on_member_join(user):
 @app_commands.describe(ban_reason="cause of your ban, if you choose 'other' PLEASE fill out 'additional_info'")
 @app_commands.describe(unban_reason="why should you be unbanned")
 @app_commands.describe(ban_reason='unban reasons')
+#ban reason choices
 @app_commands.choices(ban_reason=[
   discord.app_commands.Choice(name='NSFW', value = 1),
   discord.app_commands.Choice(name='Discrimination', value = 2),
@@ -133,6 +161,7 @@ async def add(interaction: discord.Interaction, ban_reason: discord.app_commands
     await interaction.response.send_message(embed=embed)
     request = f'{interaction.user.name} was banned for {ban_reason.name}. {interaction.user.name} wants to be unbanned because "{unban_reason}", {interaction.user.name} would also like to mention that "{additional_info}", '
 
+    #messages admin(s)
     user1 = client.get_user(Id1)
     embed2 = discord.Embed(title="Ban appeal submitted", color = 0xffff00)
     embed2.add_field(name=f"Appeal submitted by {interaction.user.name}", value=request)
@@ -255,6 +284,7 @@ class Buttons(discord.ui.View):
     @discord.ui.button(label="Suggestion Ticket",style=discord.ButtonStyle.green)
     #functions for different buttons
     async def suggest_button(self,interaction:discord.Interaction,button:discord.ui.Button):
+      #suggest button
       channel = client.get_channel(int(os.environ['SUGGESTION_CHANNEL_ID']))
       guild = interaction.guild
       user = interaction.user
@@ -267,9 +297,11 @@ class Buttons(discord.ui.View):
       await interaction.response.send_message(embed=embed,ephemeral = True)
     @discord.ui.button(label="Report Ticket",style=discord.ButtonStyle.blurple) 
     async def report_ticket(self,interaction:discord.Interaction,button:discord.ui.Button):
+      #report button
       channel = client.get_channel(int(os.environ['REPORT_CHANNEL_ID']))
       guild = interaction.guild
       user = interaction.user
+      #gives them a role which adds them to a room with the admins
       await interaction.user.add_roles((guild.get_role(int(os.environ['REPORT_ROLE_ID']))))
       embed=discord.Embed(title="You have opened ticketing room with the admins",color=0xff0000)
       embed.add_field(name="Please remain patient as you wait for an admin to get online",value="Thank You")
@@ -279,9 +311,11 @@ class Buttons(discord.ui.View):
       await interaction.response.send_message(embed=embed,ephemeral = True)
     @discord.ui.button(label="Miscellaneous Ticket",style=discord.ButtonStyle.red,) 
     async def miscellaneous_button(self,interaction:discord.Interaction,button:discord.ui.Button):
+      #miscellaneous button
       channel = client.get_channel(int(os.environ['MISC_CHANNEL_ID']))
       guild = interaction.guild
       user = interaction.user
+      #gives them a role which adds them to a room with the admins
       await interaction.user.add_roles((guild.get_role(int(os.environ['MISC_ROLE_ID']))))
       embed=discord.Embed(title="You have opened ticketing room with the admins",color=0xff0000)
       embed.add_field(name="Please remain patient as you wait for an admin to get online",value="Thank You")
@@ -292,6 +326,7 @@ class Buttons(discord.ui.View):
 
 @client.tree.command(name="ticket",description="Submit a ticket so you can discuss issues with the admins")
 async def ticket(interaction:discord.Interaction):
+  #shows the buttons in the class above
   await interaction.response.send_message("What kind of ticket do you want to submit",view=Buttons())
 
 @client.tree.command(name="purge",description="deletes all messages")
